@@ -1,7 +1,7 @@
 import csv
 import time
 from collections import Counter
-import itertools
+
 
 class Etl:
 
@@ -119,7 +119,10 @@ class Etl:
 
         return sorted([[key, value["MOVIE_APPEARED"],value["SOCIAL_MEDIA"],value["MOVIE"],value["BEST_SCORE"]] for key, value in actores.items()],key=lambda x : x[1],reverse=True)
 
+    @classmethod
+    def tag_cloud(cls,list):
 
+        return sorted([[key,value] for key,value in Counter([row_2[x] for row_2 in [row[0].split("|") for row in Etl.analysis_data_sing("plot_keywords",list) if len(row[0])>0] for x in range(len(row_2))]).items()],key=lambda x:x[1],reverse=True)
 
 
 
@@ -130,7 +133,7 @@ if __name__ == "__main__":
     start_time = time.time()
     movie_list = Etl.load_file("movie_metadata.csv")
 
-
+    """
     print(Etl.color_bn(movie_list))
     print(Etl.menos_criticadas(movie_list))
     print(Etl.mayor_duracion(movie_list))
@@ -142,5 +145,7 @@ if __name__ == "__main__":
     print(Etl.menor_produccion(movie_list))
     print(Etl.pelicula_por_director(movie_list))
     print(Etl.ranking_actores(movie_list))
+    """
+    Etl.tag_cloud(movie_list)
 
     print('\nTiempo de Ejecucion:{0}'.format(time.time()-start_time))
