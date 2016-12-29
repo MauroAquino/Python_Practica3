@@ -119,10 +119,50 @@ class Etl:
 
         return sorted([[key, value["MOVIE_APPEARED"],value["SOCIAL_MEDIA"],value["MOVIE"],value["BEST_SCORE"]] for key, value in actores.items()],key=lambda x : x[1],reverse=True)
 
+    #METODO DE TAG_CLOUD
     @classmethod
     def tag_cloud(cls,list):
 
         return sorted([[key,value] for key,value in Counter([row_2[x] for row_2 in [row[0].split("|") for row in Etl.analysis_data_sing("plot_keywords",list) if len(row[0])>0] for x in range(len(row_2))]).items()],key=lambda x:x[1],reverse=True)
+
+    @classmethod
+    def recaudacion_anual(cls,list,mayor_menor):
+
+        consolidado = sorted(
+            [[row_2[0],row_2[1],row_2[2][x]]for row_2 in [[row["gross"], row["title_year"],row["genres"].split("|")] for row in list if len(row["gross"]) > 0 and len(row["title_year"])>0] for x in  range(len(row_2[2]))],
+            key=(lambda x: x[1]))
+
+        ranking = {}
+        years = {}
+
+        if mayor_menor == "mayor":
+
+            for row in consolidado:
+                ranking.update({(row[1],row[2]):0})
+                years.update({row[1]:["",0]})
+
+            for row in consolidado:
+               ranking[(row[1],row[2])] += int(row[0])
+
+            for key,value in ranking.items():
+                if years[key[0]][1]<value:
+                    years[key[0]][0]= key[1]
+                    years[key[0]][1]= value
+        else:
+
+            for row in consolidado:
+                ranking.update({(row[1],row[2]):0})
+                years.update({row[1]:["",1000000000000000000]})
+
+            for row in consolidado:
+               ranking[(row[1],row[2])] += int(row[0])
+
+            for key,value in ranking.items():
+                if years[key[0]][1]>value:
+                    years[key[0]][0]= key[1]
+                    years[key[0]][1]= value
+
+        return sorted([[key, value[0], value[1]] for key, value in years.items()],key=lambda x:x[0])
 
 
 
@@ -133,7 +173,6 @@ if __name__ == "__main__":
     start_time = time.time()
     movie_list = Etl.load_file("movie_metadata.csv")
 
-    """
     print(Etl.color_bn(movie_list))
     print(Etl.menos_criticadas(movie_list))
     print(Etl.mayor_duracion(movie_list))
@@ -145,7 +184,8 @@ if __name__ == "__main__":
     print(Etl.menor_produccion(movie_list))
     print(Etl.pelicula_por_director(movie_list))
     print(Etl.ranking_actores(movie_list))
-    """
-    Etl.tag_cloud(movie_list)
+    print(Etl.tag_cloud(movie_list))
+    print(Etl.recaudacion_anual(movie_list,"mayor"))
+    print(Etl.recaudacion_anual(movie_list,"menor"))
 
     print('\nTiempo de Ejecucion:{0}'.format(time.time()-start_time))
