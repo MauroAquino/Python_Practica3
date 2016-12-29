@@ -178,6 +178,21 @@ class Etl:
             ranking[row[0]][1]+=1
 
         return sorted([[key,value[0]/value[1]] for key,value in ranking.items()],key=lambda x:x[1],reverse=True)[:5]
+    
+        @classmethod
+    def mas_gustados(cls,list):
+
+        consolidado = [[ row_2[0], row_2[1][x]] for row_2 in [[row["gross"], row["genres"].split("|")] for row in list if len(row["gross"]) > 0] for x in range(len(row_2[1]))]
+
+        ranking = {}
+
+        for row in consolidado:
+            ranking.update({row[1]:0})
+
+        for row in consolidado:
+            ranking[row[1]]+=int(row[0])
+
+        return sorted([[key,value] for key,value in ranking.items()],key=lambda x:x[0],reverse=True)[:1]
 
     
 
