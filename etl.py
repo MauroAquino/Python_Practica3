@@ -152,7 +152,7 @@ class Etl:
 
             for row in consolidado:
                 ranking.update({(row[1],row[2]):0})
-                years.update({row[1]:["",1000000000000000000]})
+                years.update({row[1]:["",10000000000000000000000000000]})
 
             for row in consolidado:
                ranking[(row[1],row[2])] += int(row[0])
@@ -164,7 +164,22 @@ class Etl:
 
         return sorted([[key, value[0], value[1]] for key, value in years.items()],key=lambda x:x[0])
 
+    @classmethod
+    def directores_reputacion(cls,list):
+        consolidado =  sorted([[row["director_name"], row["imdb_score"]] for row in list if len(row["imdb_score"])>0 and len(row["director_name"])>0],key=(lambda x: x[1]))
 
+        ranking = {}
+
+        for row in consolidado:
+            ranking.update({row[0]:[0,0]})
+
+        for row in consolidado:
+            ranking[row[0]][0]+=float(row[1])
+            ranking[row[0]][1]+=1
+
+        return sorted([[key,value[0]/value[1]] for key,value in ranking.items()],key=lambda x:x[1],reverse=True)[:5]
+
+    
 
 
 
@@ -173,6 +188,7 @@ if __name__ == "__main__":
     start_time = time.time()
     movie_list = Etl.load_file("movie_metadata.csv")
 
+    """
     print(Etl.color_bn(movie_list))
     print(Etl.menos_criticadas(movie_list))
     print(Etl.mayor_duracion(movie_list))
@@ -187,5 +203,7 @@ if __name__ == "__main__":
     print(Etl.tag_cloud(movie_list))
     print(Etl.recaudacion_anual(movie_list,"mayor"))
     print(Etl.recaudacion_anual(movie_list,"menor"))
+    """
+    print(Etl.directores_reputacion(movie_list))
 
     print('\nTiempo de Ejecucion:{0}'.format(time.time()-start_time))
